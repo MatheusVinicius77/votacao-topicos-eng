@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Presentation Hub</title>
+  <style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f7f9fc;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        justify-content: flex-start; /* Ajusta para que os itens fiquem no topo */
+        align-items: flex-start;
+        height: 100vh;
+        color: #333;
+    }
+
+    .container {
+        
+      width: 100%;
+      max-width: 900px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    h1 {
+      text-align: center;
+      color: #00796b;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      color: #00796b;
+      margin-bottom: 15px;
+    }
+
+    .header-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  margin-top: 30px; /* Adiciona um espaço superior para os botões */
+}
+
+    .btn {
+      padding: 10px 20px;
+      background-color: #00796b;
+      color: white;
+      font-size: 1em;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .btn:hover {
+      background-color: #004d40;
+    }
+
+    .presentation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #e0f7fa;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .presentation span {
+      font-weight: bold;
+      color: #00796b;
+    }
+
+    .presentation button {
+      padding: 8px 16px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-left: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .presentation button:hover {
+      background-color: #004d40;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+
+    input[type="number"] {
+      -webkit-appearance: none;
+      -moz-appearance: textfield;
+    }
+
+    form {
+      margin-top: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: #00796b;
+      border-radius: 5px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background-color: #f1f1f1;
+    }
+
+    .container hr {
+      border: 0;
+      height: 1px;
+      background-color: #ddd;
+      margin-bottom: 20px;
+    }
+
+    .participants-list {
+    list-style-type: none;
+    padding: 0;
+    margin: 10px 0;
+    font-size: 1.2em;
+  }
+
+  .participants-list li {
+    padding: 10px;
+    background-color: #e0f7fa;
+    margin-bottom: 8px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    color: #00796b;
+    font-weight: bold;
+  }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Presentation Hub</h1>
+
+    <!-- Navigation -->
+    <div class="header-buttons">
+      <button class="btn" onclick="showScreen('presentations-list')">Apresentações</button>
+      <button class="btn" onclick="showScreen('about')">Sobre</button>
+    </div>
+
+    <hr>
+
+    <!-- Sobre Screen -->
+    <div id="about" class="hidden">
+      <h2>Sobre</h2>
+      <p>Bem-vindo ao Presentation Hub, onde você pode visualizar e gerenciar suas apresentações. Aqui, você pode adicionar, editar e avaliar as apresentações.</p>
+      <h3>Participantes do Grupo:</h3>
+      <ul class="participants-list">
+        <li>Matheus Vinicius</li>
+        <li>Lucas Henrique</li>
+        <li>Vinicius Rodrigues</li>
+      </ul>
+    </div>
+
+    <!-- Presentations List Screen -->
+    <div id="presentations-list" class="hidden">
+      <h2>Apresentações</h2>
+      <button class="btn" onclick="showScreen('add-presentation')">Adicionar Apresentação</button>
+      <div id="presentations-container">
+        <!-- Presentations will be listed here dynamically -->
+      </div>
+    </div>
+
+    <!-- Add Presentation Screen -->
+    <div id="add-presentation" class="hidden">
+      <h2>Adicionar Nova Apresentação</h2>
+      <form id="add-presentation-form">
+        <input type="text" id="title" placeholder="Título" required>
+        <input type="number" id="coherence" placeholder="Coerência (Peso)" required>
+        <input type="number" id="duration" placeholder="Duração (Peso)" required>
+        <button class="btn" type="submit">Adicionar Apresentação</button>
+      </form>
+    </div>
+
+    <!-- Edit Presentation Screen -->
+    <div id="edit-presentation" class="hidden">
+      <h2>Editar Apresentação</h2>
+      <form id="edit-presentation-form">
+        <input type="hidden" id="edit-id-enquete">
+        <input type="text" id="edit-title" placeholder="Título" required>
+        <input type="number" id="edit-coherence" placeholder="Coerência (Peso)" required>
+        <input type="number" id="edit-duration" placeholder="Duração (Peso)" required>
+        <button class="btn" type="submit">Salvar Alterações</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1387.0.min.js"></script>
+  <script>
+    // AWS Configuration
+    AWS.config.update({
+      region: 'sa-east-1', // Atualize para sua região DynamoDB
+      credentials: new AWS.CognitoIdentityCredentials({
+        IdentityPoolId: 'sa-east-1:2c9b04f6-ee74-45b1-b1a0-d5afcc46b66b' // Substitua com seu ID de pool de identidade
+      })
+    });
+
+    const dynamoDB = new AWS.DynamoDB.DocumentClient();
+    const presentationsTable = 'taeng2-enquete'; // Substitua pelo nome da sua tabela DynamoDB
+
+    // Carregar Apresentações
+    async function loadPresentations() {
+      const params = {
+        TableName: presentationsTable
+      };
+
+      try {
+        const data = await dynamoDB.scan(params).promise();
+        renderPresentations(data.Items);
+      } catch (err) {
+        console.error('Erro ao carregar apresentações:', err);
+      }
+    }
+
+    // Renderizar Apresentações
+    function renderPresentations(presentations) {
+      const presentationsContainer = document.getElementById('presentations-container');
+      presentationsContainer.innerHTML = '';
+
+      presentations.forEach((presentation) => {
+        const div = document.createElement('div');
+        div.className = 'presentation';
+        div.innerHTML = `
+          <span>${presentation.title} (Coerência: ${presentation.coherence}, Duração: ${presentation.duration})</span>
+          <div>
+            <button class="btn" onclick="editPresentation('${presentation.id_enquete}', '${presentation.title}', ${presentation.coherence}, ${presentation.duration})">Editar</button>
+            <button class="btn" onclick="deletePresentation('${presentation.id_enquete}')">Deletar</button>
+          </div>
+        `;
+        presentationsContainer.appendChild(div);
+      });
+    }
+
+    // Adicionar Apresentação
+    document.getElementById('add-presentation-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const title = document.getElementById('title').value;
+      const coherence = parseFloat(document.getElementById('coherence').value);
+      const duration = parseFloat(document.getElementById('duration').value);
+
+      const params = {
+        TableName: presentationsTable,
+        Item: {
+          id_enquete: new Date().toISOString(),
+          title,
+          coherence,
+          duration
+        }
+      };
+
+      try {
+        await dynamoDB.put(params).promise();
+        alert('Apresentação adicionada com sucesso!');
+        showScreen('presentations-list');
+        loadPresentations(); // Recarregar as apresentações
+      } catch (err) {
+        console.error('Erro ao adicionar apresentação:', err);
+      }
+
+      document.getElementById('add-presentation-form').reset();
+    });
+
+    // Editar Apresentação
+    function editPresentation(id_enquete, title, coherence, duration) {
+      document.getElementById('edit-id-enquete').value = id_enquete;
+      document.getElementById('edit-title').value = title;
+      document.getElementById('edit-coherence').value = coherence;
+      document.getElementById('edit-duration').value = duration;
+      showScreen('edit-presentation');
+    }
+
+ // Editar Apresentação
+document.getElementById('edit-presentation-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const id_enquete = document.getElementById('edit-id-enquete').value;
+  const title = document.getElementById('edit-title').value;
+  const coherence = parseFloat(document.getElementById('edit-coherence').value);
+  const duration = parseFloat(document.getElementById('edit-duration').value);
+
+  const params = {
+    TableName: presentationsTable,
+    Key: { id_enquete },
+    UpdateExpression: 'SET #title = :title, #coherence = :coherence, #duration = :duration',
+    ExpressionAttributeNames: {
+      '#title': 'title',
+      '#coherence': 'coherence',
+      '#duration': 'duration',
+    },
+    ExpressionAttributeValues: {
+      ':title': title,
+      ':coherence': coherence,
+      ':duration': duration,
+    },
+  };
+
+  try {
+    await dynamoDB.update(params).promise();
+    alert('Apresentação atualizada com sucesso!');
+    showScreen('presentations-list');
+    loadPresentations();
+  } catch (err) {
+    console.error('Erro ao atualizar apresentação:', err);
+  }
+});
+
+    // Excluir Apresentação
+    async function deletePresentation(id_enquete) {
+      const params = {
+        TableName: presentationsTable,
+        Key: { id_enquete }
+      };
+
+      try {
+        await dynamoDB.delete(params).promise();
+        alert('Apresentação excluída com sucesso!');
+        loadPresentations();
+      } catch (err) {
+        console.error('Erro ao excluir apresentação:', err);
+      }
+    }
+
+    // Alternar entre telas
+    function showScreen(screen) {
+      const screens = ['about', 'presentations-list', 'add-presentation', 'edit-presentation'];
+      screens.forEach(s => {
+        document.getElementById(s).classList.add('hidden');
+      });
+      document.getElementById(screen).classList.remove('hidden');
+    }
+
+    // Inicializa com as telas ocultas
+    loadPresentations();
+    setInterval(loadPresentations, 5000);
+  </script>
+</body>
+</html>
