@@ -275,14 +275,14 @@
     }
     // AWS Configuration
     AWS.config.update({
-      region: 'sa-east-1', // Atualize para sua região DynamoDB
+      region: 'sa-east-1',
       credentials: new AWS.CognitoIdentityCredentials({
-        IdentityPoolId: 'sa-east-1:2c9b04f6-ee74-45b1-b1a0-d5afcc46b66b' // Substitua com seu ID de pool de identidade
+        IdentityPoolId: 'sa-east-1:2c9b04f6-ee74-45b1-b1a0-d5afcc46b66b'
       })
     });
 
     const dynamoDB = new AWS.DynamoDB.DocumentClient();
-    const presentationsTable = 'taeng2-enquete'; // Substitua pelo nome da sua tabela DynamoDB
+    const presentationsTable = 'taeng2-enquete';
 
     // Carregar Apresentações
     async function loadPresentations() {
