@@ -211,10 +211,68 @@
         <button class="btn" type="submit">Salvar Alterações</button>
       </form>
     </div>
+
+    <div id="myModal" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+      <div style="background-color: #fff; padding: 20px; border-radius: 8px; position: relative;">
+        <h2 id="modalTitle"></h2>
+        <div id="modalCompetencias" style="margin-bottom: 25px;"></div>
+        <button class="btn" onclick="votar()">Votar</button>
+        <button class="btn" onclick="closeModal()">Fechar</button>
+      </div>
+    </div>
   </div>
 
   <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1387.0.min.js"></script>
   <script>
+
+  async function votar() {
+    const coherenceValue = parseInt(document.getElementById('coherenceSelect').value);
+    const durationValue = parseInt(document.getElementById('durationSelect').value);
+
+    const params = {
+      TableName: presentationsTable,
+      Key: { id_enquete: window.currentIdEnquete },
+      UpdateExpression: "ADD coherenceSum :cVal, coherenceCount :one, durationSum :dVal, durationCount :one",
+      ExpressionAttributeValues: {
+        ":cVal": coherenceValue,
+        ":dVal": durationValue,
+        ":one": 1
+      }
+    };
+
+    try {
+      await dynamoDB.update(params).promise();
+      alert('Voto registrado!');
+      closeModal();
+      loadPresentations();
+    } catch (err) {
+      console.error('Erro ao votar:', err);
+    }
+  }
+
+  function openModal(id_enquete, title, coherence, duration) {
+      document.getElementById('modalTitle').innerText = title;
+      window.currentIdEnquete = id_enquete;
+
+      document.getElementById('modalCompetencias').innerHTML = `
+        <div>
+          <p>Coerência (Peso): ${coherence}</p>
+          <select id="coherenceSelect">
+            ${Array.from({length: 11}, (_, i) => `<option value="${i}">${i}</option>`).join('')}
+          </select>
+        </div>
+        <div>
+          <p>Duração (Peso): ${duration}</p>
+          <select id="durationSelect">
+            ${Array.from({length: 11}, (_, i) => `<option value="${i}">${i}</option>`).join('')}
+          </select>
+        </div>
+      `;
+      document.getElementById('myModal').style.display = 'flex';
+    }
+    function closeModal() {
+      document.getElementById('myModal').style.display = 'none';
+    }
     // AWS Configuration
     AWS.config.update({
       region: 'sa-east-1', // Atualize para sua região DynamoDB
@@ -246,12 +304,42 @@
       presentationsContainer.innerHTML = '';
 
       presentations.forEach((presentation) => {
+        const coherenceWeight = presentation.coherence;
+        const durationWeight = presentation.duration;
+
+        const coherenceAvg = (presentation.coherenceSum && presentation.coherenceCount) 
+          ? (presentation.coherenceSum / presentation.coherenceCount) 
+          : 0;
+
+        const durationAvg = (presentation.durationSum && presentation.durationCount) 
+          ? (presentation.durationSum / presentation.durationCount) 
+          : 0;
+
+        // Cálculo da média ponderada usando os pesos
+        let weightedAvg = 0;
+        if ((presentation.coherenceCount && presentation.coherenceCount > 0) || (presentation.durationCount && presentation.durationCount > 0)) {
+          weightedAvg = ((coherenceAvg * coherenceWeight) + (durationAvg * durationWeight)) / (coherenceWeight + durationWeight);
+          weightedAvg = weightedAvg.toFixed(2);
+        } else {
+          weightedAvg = 'N/A'; // Se não houver votos
+        }
+
         const div = document.createElement('div');
         div.className = 'presentation';
         div.innerHTML = `
-          <span>${presentation.title} (Coerência: ${presentation.coherence}, Duração: ${presentation.duration})</span>
+          <span>${presentation.title}
+            <br>
+            Pesos: Coerência(${coherenceWeight}), Duração(${durationWeight})
+            <br>
+            Média Votos Coerência: ${coherenceAvg.toFixed(2)}
+            <br>
+            Média Votos Duração: ${durationAvg.toFixed(2)}
+            <br>
+            Média Ponderada Final: ${weightedAvg}
+          </span>
           <div>
             <button class="btn" onclick="editPresentation('${presentation.id_enquete}', '${presentation.title}', ${presentation.coherence}, ${presentation.duration})">Editar</button>
+            <button class="btn" onclick="openModal('${presentation.id_enquete}','${presentation.title}', ${presentation.coherence}, ${presentation.duration})">Votar</button>
             <button class="btn" onclick="deletePresentation('${presentation.id_enquete}')">Deletar</button>
           </div>
         `;
